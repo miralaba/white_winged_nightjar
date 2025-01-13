@@ -52,11 +52,12 @@ rsconnect/
 *.tif
 *TIFF
 imagens/
-Manuscript2024/
+Manuscript2025/
 bib/
 rasters/
 old/
 data/raw/
+demography/
 
 #*.grd
 #*.gri
