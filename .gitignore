@@ -47,3 +47,23 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+
+*.tif
+*TIFF
+imagens/
+Manuscript2024/
+bib/
+rasters/
+old/
+data/raw/
+
+#*.grd
+#*.gri
+#*.dbf
+#*.prj
+#*.shp
+#*.shx
+#*.xml
+#*.cpg
+#*.zip
