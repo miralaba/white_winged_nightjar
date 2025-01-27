@@ -92,8 +92,8 @@ points(myBiomodData@coord[c(1:13),], col="red")
 points(myBiomodData@coord[c(14:403),])
 
 #default
-myBiomodOption <- BIOMOD_ModelingOptions(GLM = list(control = glm.control(maxit = 15000)),
-                                         MAXENT = list(path_to_maxent.jar = '/script', memory_allocated = 2048))
+myBiomodOption <- BIOMOD_ModelingOptions(RF = list(do.classif = T, ntree = 1000, nodesize = 10),
+                                         MAXENT = list(path_to_maxent.jar = paste0(getwd(),"/scripts"), memory_allocated = 8192))
 #edited
 #myBiomodOption <- BIOMOD_ModelingOptions(GLM = list(type = 'simple', 
 #                                                    interaction.level = 3, 
@@ -112,17 +112,18 @@ myBiomodOption <- BIOMOD_ModelingOptions(GLM = list(control = glm.control(maxit 
 
 ############ modeling #############
 myBiomodModelOut <- BIOMOD_Modeling(myBiomodData,
-                                    models = c('GLM', 'MAXENT.Phillips'),
-                                    models.options = myBiomodOption,
-                                    NbRunEval = 10,
-                                    DataSplit = 80,
-                                    Yweights = NULL,
-                                    VarImport = 5,
-                                    models.eval.meth = c('TSS', 'ROC'),
-                                    SaveObj = T,
-                                    rescal.all.models = T,
+                                    models = c('RF', 'MAXENT'),
+                                    bm.options = myBiomodOption,
+                                    CV.strategy = 'random',
+                                    CV.nb.rep = 5,
+                                    CV.perc = .8,
+                                    weights = NULL,
+                                    var.import = 5,
+                                    metric.eval = c('TSS', 'ROC'),
+                                    scale.models = T,
                                     do.full.models = F,
-                                    modeling.id = 'Hcandicans')
+                                    modeling.id = 'Hcandicans',
+                                    seed.val = 1237)
 
 
 
@@ -144,20 +145,16 @@ capture.output(get_variables_importance(myBiomodModelOut), file = "Hcandicans/Hc
 #rm(Cmuelleri.Cmuelleri.models.out)
 
 #ensemble
-myBiomodEM_all <- BIOMOD_EnsembleModeling(modeling.output = myBiomodModelOut,
-                                          chosen.models =  'all',
+myBiomodEM_all <- BIOMOD_EnsembleModeling(bm.mod = myBiomodModelOut,
+                                          models.chosen =  'all',
                                           em.by = 'all',
-                                          eval.metric = c('TSS'),
-                                          eval.metric.quality.threshold = 0.7,
-                                          prob.mean = F,
-                                          prob.cv = F,
-                                          prob.ci = F,
-                                          prob.ci.alpha = 0.05,
-                                          prob.median = F,
-                                          committee.averaging = F,
-                                          prob.mean.weight = T,
-                                          prob.mean.weight.decay = 'proportional',
-                                          VarImport = 0)
+                                          em.algo = 'EMwmean',
+                                          EMwmean.decay = 'proportional',
+                                          metric.eval = c('TSS'),
+                                          metric.select = c('TSS', 'ROC'),
+                                          metric.select.thresh = c(0.6, 0.8),
+                                          var.import = 0,
+                                          seed.val = 1237)
 
 
 
@@ -167,29 +164,29 @@ capture.output(myBiomodEM_all, file = "Hcandicans/Hcandicans_EM_all.txt")
 capture.output(get_evaluations(myBiomodEM_all), file = "Hcandicans/Hcandicans_eval_EM_all.txt")
 
 
-#### Current ####
-bio_curr_list <- list.files("../../../GIS/clima/current_2-5min", pattern = ".tif", full.names = T, recursive = T)
-bio_curr <- stack(bio_curr_list)
-rm("bio_curr_list")
-names(bio_curr)<-gsub(pattern = "wc2.1_2.5m_", replacement = "", names(bio_curr))
+##### Current ####
+#bio_curr_list <- list.files("../../../GIS/clima/current_2-5min", pattern = ".tif", full.names = T, recursive = T)
+#bio_curr <- stack(bio_curr_list)
+#rm("bio_curr_list")
+#names(bio_curr)<-gsub(pattern = "wc2.1_2.5m_", replacement = "", names(bio_curr))
 
 
-#### Crop the climate layers and clip to background boundary
-bio_curr_proj <- crop(bio_curr, extent(bkg))
-#plot(bio_curr_proj[[1]])
-#points(pts)
+##### Crop the climate layers and clip to background boundary
+#bio_curr_proj <- crop(bio_curr, extent(bkg))
+##plot(bio_curr_proj[[1]])
+##points(pts)
 
-bio_curr_proj <- stack(mask(bio_curr_proj, intersect_mask(bio_curr_proj))) 
+#bio_curr_proj <- stack(mask(bio_curr_proj, intersect_mask(bio_curr_proj))) 
 
-bio_curr_proj <- bio_curr_proj[[grep("bio|elev", paste(sel.var), value = T)]]
+#bio_curr_proj <- bio_curr_proj[[grep("bio|elev", paste(sel.var), value = T)]]
 
 #projecting current
-myBiomodProj <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                  new.env = bio_curr_proj,
+myBiomodProj <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
+                                  new.env = bio_curr_bkg,
                                   proj.name = 'current',
-                                  xy.new.env = NULL,
-                                  selected.models = 'all',
-                                  binary.meth = 'TSS',
+                                  new.env.xy = NULL,
+                                  models.chosen = models.kept,
+                                  metric.binary = 'TSS',
                                   compress = F,
                                   build.clamping.mask = F,
                                   do.stack = F,
@@ -198,60 +195,60 @@ myBiomodProj <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
 
 
 #projecting current ensemble
-myBiomodProj_EM_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                   projection.output = myBiomodProj,
-                                                   new.env = NULL,
-                                                   xy.new.env = NULL,
-                                                   selected.models = 'all',
-                                                   proj.name = 'current_ensemble',
-                                                   binary.meth = 'TSS',
-                                                   filtered.meth = NULL,
-                                                   compress = NULL,
-                                                   output.format = '.img',
-                                                   total.consensus = T)
+myBiomodProj_EM_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                  bm.proj = myBiomodProj,
+                                                  proj.name = 'current_ensemble',
+                                                  new.env = NULL,
+                                                  new.env.xy = NULL,
+                                                  models.chosen = 'all',
+                                                  metric.binary = 'TSS',
+                                                  metric.filter = NULL,
+                                                  compress = NULL,
+                                                  output.format = '.img')
 
 
 
 
 
 rm(list= ls()[(ls() %in% c("bio_curr", "bio_curr_proj", "bio_curr_bkg", "myBiomodProj", "myBiomodProj_EM_all"))])
+gc()
 #plot(raster("Hcandicans/proj_current_ensemble/individual_projections/Hcandicans_EMwmeanByTSS_mergedAlgo_mergedRun_mergedData.img"))
 #
 
-#### uncertainty ####
-models.list <- list.files(path = "Hcandicans/proj_current/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-models.list <- grep(pattern = "_TSSbin", models.list, value = T, invert = T)
-individual_models<-stack(models.list)
-#names(individual_models)
-#plot(individual_models[[1:4]])
-rm(models.list)
-
-Mtotal <- mean(individual_models)
-Mglm <- mean(individual_models[[grep("GLM", names(individual_models), value = T)]])
-Mmaxent <- mean(individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]])
-
-
-SST <- sum((individual_models-Mtotal)^2)
-
-SSMET <- sum((individual_models[[grep("GLM", names(individual_models), value = T)]]-Mglm)^2)+
-         sum((individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]]-Mmaxent)^2)
-between.met <- SSMET/SST
-
-
-SSglm <-sum((individual_models[[grep("GLM", names(individual_models), value = T)]]-Mglm)^2)
-within.glm <- SSglm/SST
-SSmaxent <- sum((individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]]-Mmaxent)^2)
-within.maxent <- SSmaxent/SST
-
-uncert.part<-stack(between.met, within.glm, within.maxent)
-names(uncert.part)<-c("between_algo", "within_glm", "within_maxent")
-plot(uncert.part)
-
-writeRaster(uncert.part, "Hcandicans/current_uncertainty.grd", format="raster")
-
-
-
-rm(list= ls()[(ls() %in% c("individual_models", "Mtotal", "Mglm", "Mgam", "Mrf", "Mmaxent", "SST", "SSMET", "SSglm", "SSmaxent", "between.met", "within.glm", "within.maxent", "uncert.part"))])
+##### uncertainty ####
+#models.list <- list.files(path = "Hcandicans/proj_current/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#models.list <- grep(pattern = "_TSSbin", models.list, value = T, invert = T)
+#individual_models<-stack(models.list)
+##names(individual_models)
+##plot(individual_models[[1:4]])
+#rm(models.list)
+#
+#Mtotal <- mean(individual_models)
+#Mglm <- mean(individual_models[[grep("GLM", names(individual_models), value = T)]])
+#Mmaxent <- mean(individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]])
+#
+#
+#SST <- sum((individual_models-Mtotal)^2)
+#
+#SSMET <- sum((individual_models[[grep("GLM", names(individual_models), value = T)]]-Mglm)^2)+
+#         sum((individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]]-Mmaxent)^2)
+#between.met <- SSMET/SST
+#
+#
+#SSglm <-sum((individual_models[[grep("GLM", names(individual_models), value = T)]]-Mglm)^2)
+#within.glm <- SSglm/SST
+#SSmaxent <- sum((individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]]-Mmaxent)^2)
+#within.maxent <- SSmaxent/SST
+#
+#uncert.part<-stack(between.met, within.glm, within.maxent)
+#names(uncert.part)<-c("between_algo", "within_glm", "within_maxent")
+#plot(uncert.part)
+#
+#writeRaster(uncert.part, "Hcandicans/current_uncertainty.grd", format="raster")
+#
+#
+#
+#rm(list= ls()[(ls() %in% c("individual_models", "Mtotal", "Mglm", "Mgam", "Mrf", "Mmaxent", "SST", "SSMET", "SSglm", "SSmaxent", "between.met", "within.glm", "within.maxent", "uncert.part"))])
 
 
 #### PAST:: Holocene ~6kbp  ccsm ####
