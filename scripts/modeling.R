@@ -252,9 +252,12 @@ gc()
 
 
 #### PAST:: Holocene ~6kbp  ccsm ####
-bio_holcc_list <- list.files("../../../GIS/clima/hol_ccsm/ccmidbi_2-5m", full.names = T, recursive = T)
+bio_holcc_list <- list.files("../GIS/ccmidbi_30s", full.names = T, recursive = T)
 bio_holcc <- stack(bio_holcc_list)
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
+rm("bio_holcc_list")
+names(bio_holcc)<-gsub(pattern = "ccmidbi", replacement = "bio_", names(bio_holcc))
+
+alt <- raster("../GIS/wc2.1_30s_bio/wc2.1_30s_elev.tif")
 names(alt)<-"elev"
 
 #### Crop the climate layers and clip to background boundary
@@ -273,30 +276,29 @@ bio_holcc_proj[["bio_4"]]<-bio_holcc_proj[["bio_4"]]/10
 
 rm(list= ls()[(ls() %in% c("bio_holcc_list", "bio_holcc", "bio_holcc_crop", "alt", "alt_crop", "alt_crop_res"))])
 
-#projecting PAST                                                                                                                               
-myBiomodProj_holcc <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
+#projecting PAST
+myBiomodProj_holcc <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
                                         new.env = bio_holcc_proj,
                                         proj.name = 'holocene_ccsm',
-                                        xy.new.env = NULL,
-                                        selected.models = "all",
-                                        binary.meth = 'TSS',
+                                        new.env.xy = NULL,
+                                        models.chosen = models.kept,
+                                        metric.binary = 'TSS',
                                         compress = F,
                                         build.clamping.mask = F,
                                         do.stack=F,
                                         output.format = '.img')
 
 #ensemble projecting PAST
-myBiomodProj_EM_holcc_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                        projection.output = myBiomodProj_holcc,
-                                                        new.env = NULL,
-                                                        xy.new.env = NULL,
-                                                        selected.models = 'all',
+myBiomodProj_EM_holcc_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                        bm.proj = myBiomodProj_holcc,
                                                         proj.name = 'holocene_ccsm_ensemble',
-                                                        binary.meth = 'TSS',
-                                                        filtered.meth = NULL,
+                                                        new.env = NULL,
+                                                        new.env.xy = NULL,
+                                                        models.chosen = 'all',
+                                                        metric.binary = 'TSS',
+                                                        metric.filter = NULL,
                                                         compress = NULL,
-                                                        output.format = '.img',
-                                                        total.consensus = TRUE)
+                                                        output.format = '.img')
 
 
 rm(list= ls()[(ls() %in% c("bio_holcc_proj", "myBiomodProj_holcc", "myBiomodProj_EM_holcc_all"))])
@@ -306,10 +308,12 @@ rm(list= ls()[(ls() %in% c("bio_holcc_proj", "myBiomodProj_holcc", "myBiomodProj
 
 
 #### PAST:: Holocene ~6kbp  miroc ####
-bio_holmr_list <- list.files("../../../GIS/clima/hol_miroc/mrmidbi_2-5m", full.names = T, recursive = T)
+bio_holmr_list <- list.files("../GIS/mrmidbi_30s", full.names = T, recursive = T)
 bio_holmr <- stack(bio_holmr_list)
+rm("bio_holmr_list")
 names(bio_holmr)<-gsub(pattern = "mrmidbi", replacement = "bio_", names(bio_holmr))
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
+
+alt <- raster("../GIS/wc2.1_30s_bio/wc2.1_30s_elev.tif")
 names(alt)<-"elev"
 
 #### Crop the climate layers and clip to background boundary
@@ -329,29 +333,28 @@ bio_holmr_proj[["bio_4"]]<-bio_holmr_proj[["bio_4"]]/10
 rm(list= ls()[(ls() %in% c("bio_holmr_list", "bio_holmr", "bio_holcc_crop", "alt", "alt_crop", "alt_crop_res"))])
 
 #projecting PAST                                                                                                                               
-myBiomodProj_holmr <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
+myBiomodProj_holmr <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
                                         new.env = bio_holmr_proj,
                                         proj.name = 'holocene_miroc',
-                                        xy.new.env = NULL,
-                                        selected.models = "all",
-                                        binary.meth = 'TSS',
+                                        new.env.xy = NULL,
+                                        models.chosen = models.kept,
+                                        metric.binary = 'TSS',
                                         compress = F,
                                         build.clamping.mask = F,
                                         do.stack=F,
                                         output.format = '.img')
 
 #ensemble projecting PAST
-myBiomodProj_EM_holmr_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                        projection.output = myBiomodProj_holmr,
-                                                        new.env = NULL,
-                                                        xy.new.env = NULL,
-                                                        selected.models = 'all',
+myBiomodProj_EM_holmr_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                        bm.proj = myBiomodProj_holmr,
                                                         proj.name = 'holocene_miroc_ensemble',
-                                                        binary.meth = 'TSS',
-                                                        filtered.meth = NULL,
+                                                        new.env = NULL,
+                                                        new.env.xy = NULL,
+                                                        models.chosen = 'all',
+                                                        metric.binary = 'TSS',
+                                                        metric.filter = NULL,
                                                         compress = NULL,
-                                                        output.format = '.img',
-                                                        total.consensus = TRUE)
+                                                        output.format = '.img')
 
 
 rm(list= ls()[(ls() %in% c("bio_holmr_proj", "myBiomodProj_holmr", "myBiomodProj_EM_holmr_all"))])
@@ -359,66 +362,69 @@ rm(list= ls()[(ls() %in% c("bio_holmr_proj", "myBiomodProj_holmr", "myBiomodProj
 #
 
 
-#### uncertainty ####
-holcc.list <- list.files(path = "Hcandicans/proj_holocene_ccsm/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-holcc.list <- grep(pattern = "_TSSbin", holcc.list, value = T, invert = T)
-holmr.list <- list.files(path = "Hcandicans/proj_holocene_miroc/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-holmr.list <- grep(pattern = "_TSSbin", holmr.list, value = T, invert = T)
-models.list <- c(holcc.list, holmr.list)
-
-individual_models<-stack(models.list)
-#names(individual_models)
-#plot(individual_models[[1:4]])
-rm(list= ls()[(ls() %in% c("models.list", "holcc.list", "holmr.list"))])
-
-Mtotal <- mean(individual_models)
-Mcc <- mean(individual_models[[grep("ccsm", names(individual_models), value = T)]])
-Mmr <- mean(individual_models[[grep("miroc", names(individual_models), value = T)]])
-Mccglm <- mean(individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]])
-Mccmaxent <- mean(individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]])
-Mmrglm <- mean(individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]])
-Mmrmaxent <- mean(individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]])
-
-
-SST <- sum((individual_models-Mtotal)^2)
-
-SSGCM <- sum((individual_models[[grep("ccsm", names(individual_models), value = T)]]-Mcc)^2)+
-         sum((individual_models[[grep("miroc", names(individual_models), value = T)]]-Mmr)^2)
-between.gcm <- SSGCM/SST
-
-
-SSMET <- sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)+
-         sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)+
-         sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)+
-         sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
-between.algo.within.gcm <- SSMET/SST
-
-
-SSccglm <-sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)
-within.ccglm <- SSccglm/SST
-SSccmaxent <- sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)
-within.ccmaxent <- SSccmaxent/SST
-SSmrglm <-sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)
-within.mrglm <- SSmrglm/SST
-SSmrmaxent <- sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
-within.mrmaxent <- SSmrmaxent/SST
-
-uncert.part<-stack(between.gcm, between.algo.within.gcm, within.ccglm, within.ccmaxent, within.mrglm, within.mrmaxent)
-names(uncert.part)<-c("between_gcm", "between_algo_within_gcm", "within_ccglm", "within_ccmaxent", "within_mrglm", "within_mrmaxent")
-plot(uncert.part)
-
-writeRaster(uncert.part, "Hcandicans/holocene_uncertainty.grd", format="raster")
-
-
-
-rm(list= ls()[!(ls() %in% c("bkg", "myBiomodData", "myBiomodEM_all", "myBiomodModelOut", "myBiomodOption", "occur2", "pres.bkg", "sel.var", "intersect_mask"))])
+##### uncertainty ####
+#holcc.list <- list.files(path = "Hcandicans/proj_holocene_ccsm/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#holcc.list <- grep(pattern = "_TSSbin", holcc.list, value = T, invert = T)
+#holmr.list <- list.files(path = "Hcandicans/proj_holocene_miroc/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#holmr.list <- grep(pattern = "_TSSbin", holmr.list, value = T, invert = T)
+#models.list <- c(holcc.list, holmr.list)
+#
+#individual_models<-stack(models.list)
+##names(individual_models)
+##plot(individual_models[[1:4]])
+#rm(list= ls()[(ls() %in% c("models.list", "holcc.list", "holmr.list"))])
+#
+#Mtotal <- mean(individual_models)
+#Mcc <- mean(individual_models[[grep("ccsm", names(individual_models), value = T)]])
+#Mmr <- mean(individual_models[[grep("miroc", names(individual_models), value = T)]])
+#Mccglm <- mean(individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]])
+#Mccmaxent <- mean(individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]])
+#Mmrglm <- mean(individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]])
+#Mmrmaxent <- mean(individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]])
+#
+#
+#SST <- sum((individual_models-Mtotal)^2)
+#
+#SSGCM <- sum((individual_models[[grep("ccsm", names(individual_models), value = T)]]-Mcc)^2)+
+#         sum((individual_models[[grep("miroc", names(individual_models), value = T)]]-Mmr)^2)
+#between.gcm <- SSGCM/SST
+#
+#
+#SSMET <- sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)+
+#         sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)+
+#         sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)+
+#         sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
+#between.algo.within.gcm <- SSMET/SST
+#
+#
+#SSccglm <-sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)
+#within.ccglm <- SSccglm/SST
+#SSccmaxent <- sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)
+#within.ccmaxent <- SSccmaxent/SST
+#SSmrglm <-sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)
+#within.mrglm <- SSmrglm/SST
+#SSmrmaxent <- sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
+#within.mrmaxent <- SSmrmaxent/SST
+#
+#uncert.part<-stack(between.gcm, between.algo.within.gcm, within.ccglm, within.ccmaxent, within.mrglm, within.mrmaxent)
+#names(uncert.part)<-c("between_gcm", "between_algo_within_gcm", "within_ccglm", "within_ccmaxent", "within_mrglm", "within_mrmaxent")
+#plot(uncert.part)
+#
+#writeRaster(uncert.part, "Hcandicans/holocene_uncertainty.grd", format="raster")
+#
+#
+#
+#rm(list= ls()[!(ls() %in% c("bkg", "myBiomodData", "myBiomodEM_all", "myBiomodModelOut", "myBiomodOption", "occur2", "pres.bkg", "sel.var", "intersect_mask"))])
 
 
 #### PAST:: LGM ~21kbp ccsm ####
-bio_lgmcc_list <- list.files("../../../GIS/clima/lgm_ccsm/cclgmbi_2-5m", full.names = T, recursive = T)
+bio_lgmcc_list <- list.files("../GIs/cclgmbi_2-5m", full.names = T, recursive = T)
 bio_lgmcc <- stack(bio_lgmcc_list)
+rm(bio_lgmcc_list)
 names(bio_lgmcc)<-gsub(pattern = "cclgmbi", replacement = "bio_", names(bio_lgmcc))
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
+
+alt <- raster("../GIS/wc2.1_30s_bio/wc2.1_30s_elev.tif")
+alt <- resample(alt, bio_lgmcc[[1]], method="bilinear")
 names(alt)<-"elev"
 
 #### Crop the climate layers and clip to background boundary
@@ -437,30 +443,30 @@ bio_lgmcc_proj[["bio_4"]]<-bio_lgmcc_proj[["bio_4"]]/10
 
 rm(list= ls()[(ls() %in% c("bio_lgmcc_list", "bio_lgmcc", "alt", "alt_crop"))])
 
-#projecting PAST                                                                                                                               
-myBiomodProj_lgmcc <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
+#projecting PAST 
+myBiomodProj_lgmcc <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
                                         new.env = bio_lgmcc_proj,
                                         proj.name = 'lgm_ccsm',
-                                        xy.new.env = NULL,
-                                        selected.models = "all",
-                                        binary.meth = 'TSS',
+                                        new.env.xy = NULL,
+                                        models.chosen = models.kept,
+                                        metric.binary = 'TSS',
                                         compress = F,
                                         build.clamping.mask = F,
                                         do.stack=F,
                                         output.format = '.img')
 
+
 #ensemble projecting PAST
-myBiomodProj_EM_lgmcc_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                        projection.output = myBiomodProj_lgmcc,
-                                                        new.env = NULL,
-                                                        xy.new.env = NULL,
-                                                        selected.models = 'all',
+myBiomodProj_EM_lgmcc_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                        bm.proj = myBiomodProj_lgmcc,
                                                         proj.name = 'lgm_ccsm_ensemble',
-                                                        binary.meth = 'TSS',
-                                                        filtered.meth = NULL,
+                                                        new.env = NULL,
+                                                        new.env.xy = NULL,
+                                                        models.chosen = 'all',
+                                                        metric.binary = 'TSS',
+                                                        metric.filter = NULL,
                                                         compress = NULL,
-                                                        output.format = '.img',
-                                                        total.consensus = TRUE)
+                                                        output.format = '.img')
 
 
 rm(list= ls()[(ls() %in% c("bio_lgmcc_proj", "myBiomodProj_lgmcc", "myBiomodProj_EM_lgmcc_all"))])
@@ -469,10 +475,13 @@ rm(list= ls()[(ls() %in% c("bio_lgmcc_proj", "myBiomodProj_lgmcc", "myBiomodProj
 
 
 #### PAST:: LGM ~21kbp miroc ####
-bio_lgmmr_list <- list.files("../../../GIS/clima/lgm_miroc/mrlgmbi_2-5m", full.names = T, recursive = T)
+bio_lgmmr_list <- list.files("../GIS/mrlgmbi_2-5m", full.names = T, recursive = T)
 bio_lgmmr <- stack(bio_lgmmr_list)
+rm(bio_lgmmr_list)
 names(bio_lgmmr)<-gsub(pattern = "mrlgmbi", replacement = "bio_", names(bio_lgmmr))
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
+
+alt <- raster("../GIS/wc2.1_30s_bio/wc2.1_30s_elev.tif")
+alt <- resample(alt, bio_lgmmr[[1]], method="bilinear")
 names(alt)<-"elev"
 
 #### Crop the climate layers and clip to background boundary
@@ -492,29 +501,29 @@ bio_lgmmr_proj[["bio_4"]]<-bio_lgmmr_proj[["bio_4"]]/10
 rm(list= ls()[(ls() %in% c("bio_lgmmr_list", "bio_lgmmr", "alt", "alt_crop"))])
 
 #projecting PAST                                                                                                                               
-myBiomodProj_lgmmr <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
+myBiomodProj_lgmmr <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
                                         new.env = bio_lgmmr_proj,
                                         proj.name = 'lgm_miroc',
-                                        xy.new.env = NULL,
-                                        selected.models = "all",
-                                        binary.meth = 'TSS',
+                                        new.env.xy = NULL,
+                                        models.chosen = models.kept,
+                                        metric.binary = 'TSS',
                                         compress = F,
                                         build.clamping.mask = F,
                                         do.stack=F,
                                         output.format = '.img')
 
+
 #ensemble projecting PAST
-myBiomodProj_EM_lgmmr_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                        projection.output = myBiomodProj_lgmmr,
-                                                        new.env = NULL,
-                                                        xy.new.env = NULL,
-                                                        selected.models = 'all',
+myBiomodProj_EM_lgmmr_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                        bm.proj = myBiomodProj_lgmmr,
                                                         proj.name = 'lgm_miroc_ensemble',
-                                                        binary.meth = 'TSS',
-                                                        filtered.meth = NULL,
+                                                        new.env = NULL,
+                                                        new.env.xy = NULL,
+                                                        models.chosen = 'all',
+                                                        metric.binary = 'TSS',
+                                                        metric.filter = NULL,
                                                         compress = NULL,
-                                                        output.format = '.img',
-                                                        total.consensus = TRUE)
+                                                        output.format = '.img')
 
 
 rm(list= ls()[(ls() %in% c("bio_lgmmr_proj", "myBiomodProj_lgmmr", "myBiomodProj_EM_lgmmr_all"))])
@@ -522,155 +531,66 @@ rm(list= ls()[(ls() %in% c("bio_lgmmr_proj", "myBiomodProj_lgmmr", "myBiomodProj
 #
 
 
-#### uncertainty ####
-lgmcc.list <- list.files(path = "Hcandicans/proj_lgm_ccsm/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-lgmcc.list <- grep(pattern = "_TSSbin", lgmcc.list, value = T, invert = T)
-lgmmr.list <- list.files(path = "Hcandicans/proj_lgm_miroc/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-lgmmr.list <- grep(pattern = "_TSSbin", lgmmr.list, value = T, invert = T)
-models.list <- c(lgmcc.list, lgmmr.list)
-
-individual_models<-stack(models.list)
-#names(individual_models)
-#plot(individual_models[[1:4]])
-rm(list= ls()[(ls() %in% c("models.list", "lgmcc.list", "lgmmr.list"))])
-
-Mtotal <- mean(individual_models)
-Mcc <- mean(individual_models[[grep("ccsm", names(individual_models), value = T)]])
-Mmr <- mean(individual_models[[grep("miroc", names(individual_models), value = T)]])
-Mccglm <- mean(individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]])
-Mccmaxent <- mean(individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]])
-Mmrglm <- mean(individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]])
-Mmrmaxent <- mean(individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]])
-
-
-SST <- sum((individual_models-Mtotal)^2)
-
-SSGCM <- sum((individual_models[[grep("ccsm", names(individual_models), value = T)]]-Mcc)^2)+
-         sum((individual_models[[grep("miroc", names(individual_models), value = T)]]-Mmr)^2)
-between.gcm <- SSGCM/SST
-
-
-SSMET <- sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)+
-         sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)+
-         sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)+
-         sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
-between.algo.within.gcm <- SSMET/SST
-
-
-SSccglm <-sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)
-within.ccglm <- SSccglm/SST
-SSccmaxent <- sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)
-within.ccmaxent <- SSccmaxent/SST
-SSmrglm <-sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)
-within.mrglm <- SSmrglm/SST
-SSmrmaxent <- sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
-within.mrmaxent <- SSmrmaxent/SST
-
-uncert.part<-stack(between.gcm, between.algo.within.gcm, within.ccglm, within.ccmaxent, within.mrglm, within.mrmaxent)
-names(uncert.part)<-c("between_gcm", "between_algo_within_gcm", "within_ccglm", "within_ccmaxent", "within_mrglm", "within_mrmaxent")
-plot(uncert.part)
-
-writeRaster(uncert.part, "Cmuelleri/lgm_uncertainty.grd", format="raster")
-
-
-
-rm(list= ls()[!(ls() %in% c("bkg", "myBiomodData", "myBiomodEM_all", "myBiomodModelOut", "myBiomodOption", "occur2", "pres.bkg", "sel.var", "intersect_mask"))])
-
-
-#### PAST:: LIG ~120kbp ####
-bio_lig_list <- list.files("../../../GIS/clima/lig/lig_30s_bio", pattern = ".bil$", full.names = T, recursive = T)
-bio_lig <- stack(bio_lig_list)
-names(bio_lig)<-gsub(pattern = "lig_30s_", replacement = "", names(bio_lig))
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
-names(alt)<-"elev"
-#### Crop the climate layers and clip to background boundary
-bio_lig_proj <- crop(bio_lig, extent(bkg))
-alt_crop <- crop(alt, extent(bkg))
-
-bio_lig_proj <- resample(bio_lig_proj, alt_crop, method="bilinear")
-bio_lig_proj <- stack(bio_lig_proj, alt_crop)
-bio_lig_proj <- stack(mask(bio_lig_proj, intersect_mask(bio_lig_proj))) 
-
-bio_lig_proj <- bio_lig_proj[[grep("bio|elev", paste(sel.var), value = T)]]
-
-#### transform temp variables == °C/10 
-bio_lig_proj[["bio_1"]]<-bio_lig_proj[["bio_1"]]/10
-bio_lig_proj[["bio_2"]]<-bio_lig_proj[["bio_2"]]/10
-bio_lig_proj[["bio_4"]]<-bio_lig_proj[["bio_4"]]/10
-
-rm(list= ls()[(ls() %in% c("bio_lig_list", "bio_lig", "alt", "alt_crop"))])
-
-#projecting PAST                                                                                                                               
-myBiomodProj_lig <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                      new.env = bio_lig_proj,
-                                      proj.name = 'lig',
-                                      xy.new.env = NULL,
-                                      selected.models = "all",
-                                      binary.meth = 'TSS',
-                                      compress = F,
-                                      build.clamping.mask = F,
-                                      do.stack=F,
-                                      output.format = '.img')
-
-#ensemble projecting PAST
-myBiomodProj_EM_lig_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                      projection.output = myBiomodProj_lig,
-                                                      new.env = NULL,
-                                                      xy.new.env = NULL,
-                                                      selected.models = 'all',
-                                                      proj.name = 'lig_ensemble',
-                                                      binary.meth = 'TSS',
-                                                      filtered.meth = NULL,
-                                                      compress = NULL,
-                                                      output.format = '.img',
-                                                      total.consensus = TRUE)
-
-
-rm(list= ls()[(ls() %in% c("bio_lig_proj", "myBiomodProj_lig", "myBiomodProj_EM_lig_all"))])
-#plot(raster("Hcandicans/proj_lig_ensemble/individual_projections/Hcandicans_EMwmeanByTSS_mergedAlgo_mergedRun_mergedData.img"))
+##### uncertainty ####
+#lgmcc.list <- list.files(path = "Hcandicans/proj_lgm_ccsm/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#lgmcc.list <- grep(pattern = "_TSSbin", lgmcc.list, value = T, invert = T)
+#lgmmr.list <- list.files(path = "Hcandicans/proj_lgm_miroc/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#lgmmr.list <- grep(pattern = "_TSSbin", lgmmr.list, value = T, invert = T)
+#models.list <- c(lgmcc.list, lgmmr.list)
 #
-
-
-#### uncertainty ####
-models.list <- list.files(path = "Hcandicans/proj_lig/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-models.list <- grep(pattern = "_TSSbin", models.list, value = T, invert = T)
-individual_models<-stack(models.list)
-#names(individual_models)
-#plot(individual_models[[1:4]])
-rm(models.list)
-
-Mtotal <- mean(individual_models)
-Mglm <- mean(individual_models[[grep("GLM", names(individual_models), value = T)]])
-Mmaxent <- mean(individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]])
-
-
-SST <- sum((individual_models-Mtotal)^2)
-
-SSMET <- sum((individual_models[[grep("GLM", names(individual_models), value = T)]]-Mglm)^2)+
-         sum((individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]]-Mmaxent)^2)
-between.met <- SSMET/SST
-
-
-SSglm <-sum((individual_models[[grep("GLM", names(individual_models), value = T)]]-Mglm)^2)
-within.glm <- SSglm/SST
-SSmaxent <- sum((individual_models[[grep("MAXENT.Phillips", names(individual_models), value = T)]]-Mmaxent)^2)
-within.maxent <- SSmaxent/SST
-
-uncert.part<-stack(between.met, within.glm, within.maxent)
-names(uncert.part)<-c("between_algo", "within_glm", "within_maxent")
-plot(uncert.part)
-
-writeRaster(uncert.part, "Cmuelleri/lig_uncertainty.grd", format="raster")
-
-
-
-rm(list= ls()[(ls() %in% c("individual_models", "Mtotal", "Mglm", "Mgam", "Mrf", "Mmaxent", "SST", "SSMET", "SSglm", "SSmaxent", "between.met", "within.glm", "within.maxent", "uncert.part"))])
+#individual_models<-stack(models.list)
+##names(individual_models)
+##plot(individual_models[[1:4]])
+#rm(list= ls()[(ls() %in% c("models.list", "lgmcc.list", "lgmmr.list"))])
+#
+#Mtotal <- mean(individual_models)
+#Mcc <- mean(individual_models[[grep("ccsm", names(individual_models), value = T)]])
+#Mmr <- mean(individual_models[[grep("miroc", names(individual_models), value = T)]])
+#Mccglm <- mean(individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]])
+#Mccmaxent <- mean(individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]])
+#Mmrglm <- mean(individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]])
+#Mmrmaxent <- mean(individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]])
+#
+#
+#SST <- sum((individual_models-Mtotal)^2)
+#
+#SSGCM <- sum((individual_models[[grep("ccsm", names(individual_models), value = T)]]-Mcc)^2)+
+#         sum((individual_models[[grep("miroc", names(individual_models), value = T)]]-Mmr)^2)
+#between.gcm <- SSGCM/SST
+#
+#
+#SSMET <- sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)+
+#         sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)+
+#         sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)+
+#         sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
+#between.algo.within.gcm <- SSMET/SST
+#
+#
+#SSccglm <-sum((individual_models[[grep("ccsm.*GLM", names(individual_models), value = T)]]-Mccglm)^2)
+#within.ccglm <- SSccglm/SST
+#SSccmaxent <- sum((individual_models[[grep("ccsm.*MAXENT.Phillips", names(individual_models), value = T)]]-Mccmaxent)^2)
+#within.ccmaxent <- SSccmaxent/SST
+#SSmrglm <-sum((individual_models[[grep("miroc.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)
+#within.mrglm <- SSmrglm/SST
+#SSmrmaxent <- sum((individual_models[[grep("miroc.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
+#within.mrmaxent <- SSmrmaxent/SST
+#
+#uncert.part<-stack(between.gcm, between.algo.within.gcm, within.ccglm, within.ccmaxent, within.mrglm, within.mrmaxent)
+#names(uncert.part)<-c("between_gcm", "between_algo_within_gcm", "within_ccglm", "within_ccmaxent", "within_mrglm", "within_mrmaxent")
+#plot(uncert.part)
+#
+#writeRaster(uncert.part, "Cmuelleri/lgm_uncertainty.grd", format="raster")
+#
+#
+#
+#rm(list= ls()[!(ls() %in% c("bkg", "myBiomodData", "myBiomodEM_all", "myBiomodModelOut", "myBiomodOption", "occur2", "pres.bkg", "sel.var", "intersect_mask"))])
 
 
 #### FUTURE:: 2050, SSP5-8.5, CNRM-ESM2-1  ####
-bio_fut1 <- stack("../../../GIS/clima/2050_ssp585_cnrm-esm2/wc2.1_2.5m_bioc_CNRM-ESM2-1_ssp585_2041-2060.tif")
-names(bio_fut1)<-gsub(pattern = "wc2.1_2.5m_bioc_CNRM.ESM2.1_ssp585_2041.2060.", replacement = "bio_", names(bio_fut1))
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
+bio_fut1 <- stack("../GIS/wc2.1_30s_bioc_CMCC-ESM2_ssp585_2041-2060.tif")
+names(bio_fut1)<-gsub(pattern = "wc2.1_30s_bioc_CMCC.ESM2_ssp585_2041.2060", replacement = "bio", names(bio_fut1))
+
+alt <- raster("../GIS/wc2.1_30s_bio/wc2.1_30s_elev.tif")
 names(alt)<-"elev"
 #### Crop the climate layers and clip to background boundary
 bio_fut1_crop <- crop(bio_fut1, extent(bkg))
@@ -684,29 +604,28 @@ bio_fut1_proj <- bio_fut1_proj[[grep("bio|elev", paste(sel.var), value = T)]]
 rm(list= ls()[(ls() %in% c("bio_fut1_list", "bio_fut1", "bio_fut1_crop", "alt", "alt_crop"))])
 
 #projecting FUTURE
-myBiomodProj_F1 <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
-                                     new.env = bio_fut1_proj,
-                                     proj.name = 'future_2050_ssp585_cnrm-esm2',
-                                     xy.new.env = NULL,
-                                     selected.models = "all",
-                                     binary.meth = 'TSS',
-                                     compress = F,
-                                     build.clamping.mask = F,
-                                     do.stack=F,
-                                     output.format = '.img')
+myBiomodProj_F1 <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
+                                        new.env = bio_fut1_proj,
+                                        proj.name = 'future_2050_ssp585_cmcc_esm2',
+                                        new.env.xy = NULL,
+                                        models.chosen = models.kept,
+                                        metric.binary = 'TSS',
+                                        compress = F,
+                                        build.clamping.mask = F,
+                                        do.stack=F,
+                                        output.format = '.img')
 
 #ensemble projecting FUTURE                                                                                                                             
-myBiomodProj_EM_F1_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                     projection.output = myBiomodProj_F1,
-                                                     new.env = NULL,
-                                                     xy.new.env = NULL,
-                                                     selected.models = 'all',
-                                                     proj.name = 'future_2050_ssp585_cnrm-esm2_ensemble',
-                                                     binary.meth = 'TSS',
-                                                     filtered.meth = NULL,
-                                                     compress = NULL,
-                                                     output.format = '.img',
-                                                     total.consensus = TRUE)
+myBiomodProj_EM_F1_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                        bm.proj = myBiomodProj_F1,
+                                                        proj.name = 'future_2050_ssp585_cmcc_esm2_ensemble',
+                                                        new.env = NULL,
+                                                        new.env.xy = NULL,
+                                                        models.chosen = 'all',
+                                                        metric.binary = 'TSS',
+                                                        metric.filter = NULL,
+                                                        compress = NULL,
+                                                        output.format = '.img')
 
 
 rm(list= ls()[(ls() %in% c("bio_fut1_proj", "myBiomodProj_F1", "myBiomodProj_EM_F1_all"))])
@@ -715,9 +634,10 @@ rm(list= ls()[(ls() %in% c("bio_fut1_proj", "myBiomodProj_F1", "myBiomodProj_EM_
 
 
 #### FUTURE:: 2050, SSP5-8.5, MIROC6  ####
-bio_fut2 <- stack("../../../GIS/clima/2050_ssp585_miroc6/wc2.1_2.5m_bioc_MIROC6_ssp585_2041-2060.tif")
-names(bio_fut2)<-gsub(pattern = "wc2.1_2.5m_bioc_MIROC6_ssp585_2041.2060.", replacement = "bio_", names(bio_fut2))
-alt <- raster("../../../GIS/clima/current_2-5min/wc2.1_2.5m_elev.tif")
+bio_fut2 <- stack("../GIS/wc2.1_30s_bioc_MIROC6_ssp585_2041-2060.tif")
+names(bio_fut2)<-gsub(pattern = "wc2.1_30s_bioc_MIROC6_ssp585_2041.2060.", replacement = "bio_", names(bio_fut2))
+
+alt <- raster("../GIS/wc2.1_30s_bio/wc2.1_30s_elev.tif")
 names(alt)<-"elev"
 #### Crop the climate layers and clip to background boundary
 bio_fut2_crop <- crop(bio_fut2, extent(bkg))
@@ -731,29 +651,28 @@ bio_fut2_proj <- bio_fut2_proj[[grep("bio|elev", paste(sel.var), value = T)]]
 rm(list= ls()[(ls() %in% c("bio_fut2_list", "bio_fut2", "bio_fut2_crop", "alt", "alt_crop"))])
 
 #projecting FUTURE
-myBiomodProj_F2 <- BIOMOD_Projection(modeling.output = myBiomodModelOut,
+myBiomodProj_F2 <- BIOMOD_Projection(bm.mod = myBiomodModelOut,
                                      new.env = bio_fut2_proj,
                                      proj.name = 'future_2050_ssp585_miroc6',
-                                     xy.new.env = NULL,
-                                     selected.models = "all",
-                                     binary.meth = 'TSS',
+                                     new.env.xy = NULL,
+                                     models.chosen = models.kept,
+                                     metric.binary = 'TSS',
                                      compress = F,
                                      build.clamping.mask = F,
                                      do.stack=F,
                                      output.format = '.img')
 
 #ensemble projecting FUTURE                                                                                                                             
-myBiomodProj_EM_F2_all <- BIOMOD_EnsembleForecasting(EM.output = myBiomodEM_all,
-                                                     projection.output = myBiomodProj_F2,
-                                                     new.env = NULL,
-                                                     xy.new.env = NULL,
-                                                     selected.models = 'all',
+myBiomodProj_EM_F2_all <- BIOMOD_EnsembleForecasting(bm.em = myBiomodEM_all,
+                                                     bm.proj = myBiomodProj_F2,
                                                      proj.name = 'future_2050_ssp585_miroc6_ensemble',
-                                                     binary.meth = 'TSS',
-                                                     filtered.meth = NULL,
+                                                     new.env = NULL,
+                                                     new.env.xy = NULL,
+                                                     models.chosen = 'all',
+                                                     metric.binary = 'TSS',
+                                                     metric.filter = NULL,
                                                      compress = NULL,
-                                                     output.format = '.img',
-                                                     total.consensus = TRUE)
+                                                     output.format = '.img')
 
 
 rm(list= ls()[(ls() %in% c("bio_fut2_proj", "myBiomodProj_F2", "myBiomodEM_F2_all", "myBiomodProj_EM_F2_all"))])
@@ -761,62 +680,62 @@ rm(list= ls()[(ls() %in% c("bio_fut2_proj", "myBiomodProj_F2", "myBiomodEM_F2_al
 #
 
 
-#### uncertainty ####
-fut1.list <- list.files(path = "Hcandicans/proj_future_2050_ssp585_cnrm-esm2/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-fut1.list <- grep(pattern = "_TSSbin", fut1.list, value = T, invert = T)
-fut2.list <- list.files(path = "Hcandicans/proj_future_2050_ssp585_miroc6/individual_projections", pattern = ".img$", full.names = T, recursive = T)
-fut2.list <- grep(pattern = "_TSSbin", fut2.list, value = T, invert = T)
-models.list <- c(fut1.list, fut2.list)
-
-individual_models<-stack(models.list)
-#names(individual_models)
-#plot(individual_models[[1:4]])
-rm(list= ls()[(ls() %in% c("models.list", "fut1.list", "fut2.list"))])
-
-Mtotal <- mean(individual_models)
-Mcn <- mean(individual_models[[grep("cnrm.esm2", names(individual_models), value = T)]])
-Mmr <- mean(individual_models[[grep("miroc6", names(individual_models), value = T)]])
-Mcnglm <- mean(individual_models[[grep("cnrm.esm2.*GLM", names(individual_models), value = T)]])
-Mcnmaxent <- mean(individual_models[[grep("cnrm.esm2.*MAXENT.Phillips", names(individual_models), value = T)]])
-Mmrglm <- mean(individual_models[[grep("miroc6.*GLM", names(individual_models), value = T)]])
-Mmrmaxent <- mean(individual_models[[grep("miroc6.*MAXENT.Phillips", names(individual_models), value = T)]])
-
-
-SST <- sum((individual_models-Mtotal)^2)
-
-SSGCM <- sum((individual_models[[grep("cnrm.esm2", names(individual_models), value = T)]]-Mcn)^2)+
-         sum((individual_models[[grep("miroc6", names(individual_models), value = T)]]-Mmr)^2)
-between.gcm <- SSGCM/SST
-
-
-SSMET <- sum((individual_models[[grep("cnrm.esm2.*GLM", names(individual_models), value = T)]]-Mcnglm)^2)+
-         sum((individual_models[[grep("cnrm.esm2.*MAXENT.Phillips", names(individual_models), value = T)]]-Mcnmaxent)^2)+
-         sum((individual_models[[grep("miroc6.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)+
-         sum((individual_models[[grep("miroc6.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
-between.algo.within.gcm <- SSMET/SST
-
-
-SScnglm <-sum((individual_models[[grep("cnrm.esm2.*GLM", names(individual_models), value = T)]]-Mcnglm)^2)
-within.cnglm <- SScnglm/SST
-SScnmaxent <- sum((individual_models[[grep("cnrm.esm2.*MAXENT.Phillips", names(individual_models), value = T)]]-Mcnmaxent)^2)
-within.cnmaxent <- SScnmaxent/SST
-SSmrglm <-sum((individual_models[[grep("miroc6.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)
-within.mrglm <- SSmrglm/SST
-SSmrmaxent <- sum((individual_models[[grep("miroc6.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
-within.mrmaxent <- SSmrmaxent/SST
-
-uncert.part<-stack(between.gcm, between.algo.within.gcm, within.cnglm, within.cnmaxent, within.mrglm, within.mrmaxent)
-names(uncert.part)<-c("between_gcm", "between_algo_within_gcm", "within_cnglm", "within_cnmaxent", "within_mrglm", "within_mrmaxent")
-plot(uncert.part)
-
-writeRaster(uncert.part, "Hcandicans/future_uncertainty.grd", format="raster")
-
-
-
-rm(list= ls()[!(ls() %in% c("bkg", "myBiomodData", "myBiomodEM_all", "myBiomodModelOut", "myBiomodOption", "occur2", "pres.bkg", "sel.var", "intersect_mask"))])
-
-
+##### uncertainty ####
+#fut1.list <- list.files(path = "Hcandicans/proj_future_2050_ssp585_cnrm-esm2/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#fut1.list <- grep(pattern = "_TSSbin", fut1.list, value = T, invert = T)
+#fut2.list <- list.files(path = "Hcandicans/proj_future_2050_ssp585_miroc6/individual_projections", pattern = ".img$", full.names = T, recursive = T)
+#fut2.list <- grep(pattern = "_TSSbin", fut2.list, value = T, invert = T)
+#models.list <- c(fut1.list, fut2.list)
 #
+#individual_models<-stack(models.list)
+##names(individual_models)
+##plot(individual_models[[1:4]])
+#rm(list= ls()[(ls() %in% c("models.list", "fut1.list", "fut2.list"))])
+#
+#Mtotal <- mean(individual_models)
+#Mcn <- mean(individual_models[[grep("cnrm.esm2", names(individual_models), value = T)]])
+#Mmr <- mean(individual_models[[grep("miroc6", names(individual_models), value = T)]])
+#Mcnglm <- mean(individual_models[[grep("cnrm.esm2.*GLM", names(individual_models), value = T)]])
+#Mcnmaxent <- mean(individual_models[[grep("cnrm.esm2.*MAXENT.Phillips", names(individual_models), value = T)]])
+#Mmrglm <- mean(individual_models[[grep("miroc6.*GLM", names(individual_models), value = T)]])
+#Mmrmaxent <- mean(individual_models[[grep("miroc6.*MAXENT.Phillips", names(individual_models), value = T)]])
+#
+#
+#SST <- sum((individual_models-Mtotal)^2)
+#
+#SSGCM <- sum((individual_models[[grep("cnrm.esm2", names(individual_models), value = T)]]-Mcn)^2)+
+#         sum((individual_models[[grep("miroc6", names(individual_models), value = T)]]-Mmr)^2)
+#between.gcm <- SSGCM/SST
+#
+#
+#SSMET <- sum((individual_models[[grep("cnrm.esm2.*GLM", names(individual_models), value = T)]]-Mcnglm)^2)+
+#         sum((individual_models[[grep("cnrm.esm2.*MAXENT.Phillips", names(individual_models), value = T)]]-Mcnmaxent)^2)+
+#         sum((individual_models[[grep("miroc6.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)+
+#         sum((individual_models[[grep("miroc6.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
+#between.algo.within.gcm <- SSMET/SST
+#
+#
+#SScnglm <-sum((individual_models[[grep("cnrm.esm2.*GLM", names(individual_models), value = T)]]-Mcnglm)^2)
+#within.cnglm <- SScnglm/SST
+#SScnmaxent <- sum((individual_models[[grep("cnrm.esm2.*MAXENT.Phillips", names(individual_models), value = T)]]-Mcnmaxent)^2)
+#within.cnmaxent <- SScnmaxent/SST
+#SSmrglm <-sum((individual_models[[grep("miroc6.*GLM", names(individual_models), value = T)]]-Mmrglm)^2)
+#within.mrglm <- SSmrglm/SST
+#SSmrmaxent <- sum((individual_models[[grep("miroc6.*MAXENT.Phillips", names(individual_models), value = T)]]-Mmrmaxent)^2)
+#within.mrmaxent <- SSmrmaxent/SST
+#
+#uncert.part<-stack(between.gcm, between.algo.within.gcm, within.cnglm, within.cnmaxent, within.mrglm, within.mrmaxent)
+#names(uncert.part)<-c("between_gcm", "between_algo_within_gcm", "within_cnglm", "within_cnmaxent", "within_mrglm", "within_mrmaxent")
+#plot(uncert.part)
+#
+#writeRaster(uncert.part, "Hcandicans/future_uncertainty.grd", format="raster")
+#
+#
+#
+#rm(list= ls()[!(ls() %in% c("bkg", "myBiomodData", "myBiomodEM_all", "myBiomodModelOut", "myBiomodOption", "occur2", "pres.bkg", "sel.var", "intersect_mask"))])
+#
+#
+##
 
 
 
